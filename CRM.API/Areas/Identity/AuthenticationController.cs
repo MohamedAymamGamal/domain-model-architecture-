@@ -1,8 +1,8 @@
-﻿using CRM.Service.IService;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using CRM.Model.ApplicaitionModels;
 using System.ComponentModel;
 using CRM.Model.Inputmodel;
+using CRM.Service.IService;
 
 namespace CRM.Api.Areas.Identity
 {

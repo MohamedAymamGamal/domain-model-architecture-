@@ -3,12 +3,14 @@ using CRM.DataAccess;
 using CRM.Model.IdentityModels;
 using CRM.Utility;
 using CRM.Utility.IUtitlity;
-using Microsoft.AspNetCore.Authentication;
+//using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using System;
 using System.Diagnostics;
+using CRM.Service.IService;
+using CRM.Service;
 
 namespace CRM.API
 {
@@ -35,7 +37,6 @@ namespace CRM.API
                   .AddEntityFrameworkStores<ApplicationDbContext>()
                   .AddDefaultTokenProviders();
 
-            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
             builder.Services.AddOpenApi();
             //service for swagger
 
@@ -53,7 +54,7 @@ namespace CRM.API
 
 
             // service for services
-            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.AddScoped<CRM.Service.IService.IAuthenticationService, AuthenticationService>();
             //service for services
 
 
