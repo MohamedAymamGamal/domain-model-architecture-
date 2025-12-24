@@ -2,6 +2,7 @@
 using CRM.Model.IdentityModels;
 using CRM.Model.Inputmodel;
 using CRM.Service.IService;
+using CRM.Utility;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -9,12 +10,55 @@ using System.Text;
 
 namespace CRM.Service
 {
-    public class AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager) : IAuthenticationService 
+    public class AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager , ApplicationEmailSender emailService) : IAuthenticationService 
     {
        
+        private short GenerateCode()
+        {
+            var random = new Random();
+            return (short)random.Next(1000, 9999);
+        }
         public Task<bool> ChangePasswordAsync(ApplicationUserRegisterInputModel model)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ResponseModel<bool>> ConfirmEmailAsync(ApplicationUserRegisterInputModel model)
+        {
+            ArgumentNullException.ThrowIfNull(model.Email);
+            var user = userManager.FindByEmailAsync(model.Email).Result;
+            if (user == null)
+            {
+                return new ResponseModel<bool>
+                {
+                    IsSuccess = false,
+                    Message = "User not found",
+                    Data = false
+                };
+            }
+            if(user.EmailConfirmed)
+            {
+                return new ResponseModel<bool>
+                {
+                    IsSuccess = false,
+                    Message = "Email already confirmed",
+                    Data = false
+                };
+            }
+            user.VerificationCode = GenerateCode();
+            var result = userManager.UpdateAsync(user).Result;
+            
+            if (!result.Succeeded)
+            {
+                return new ResponseModel<bool>
+                {
+                    IsSuccess = false,
+                    Message = "Failed to save verification code",
+                   
+                };
+
+            }
+
         }
 
         public Task<ResponseModel<bool>> ForgotPasswordAsync(ApplicationUserRegisterInputModel model)
@@ -105,6 +149,9 @@ namespace CRM.Service
             throw new NotImplementedException();
         }
 
-        
+        public Task<ResponseModel<bool>> ConfirmEmailVerifyCodeAsync(ApplicationUserConfirmEmailInputModel model)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
