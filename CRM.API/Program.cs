@@ -55,6 +55,8 @@ namespace CRM.API
 
             // service for services
             builder.Services.AddScoped<CRM.Service.IService.IAuthenticationService, AuthenticationService>();
+            builder.Services.AddSingleton<JsonLocalizationService>();
+
             //service for services
 
 

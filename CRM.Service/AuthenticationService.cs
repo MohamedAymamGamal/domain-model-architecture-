@@ -1,16 +1,22 @@
-﻿using CRM.Model.ApplicaitionModels;
+﻿using CRM.API.Service;
+using CRM.Model.ApplicaitionModels;
 using CRM.Model.IdentityModels;
 using CRM.Model.Inputmodel;
 using CRM.Service.IService;
 using CRM.Utility;
+using CRM.Utility.IUtitlity;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Net.Mail;
+using System.Net.Mime;
 using System.Text;
 
 namespace CRM.Service
 {
-    public class AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager , ApplicationEmailSender emailService) : IAuthenticationService 
+    public class AuthenticationService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationEmailSender emailService,JsonLocalizationService localize,IApplicationEmailSender applicationEmailSender
+
+        ) : IAuthenticationService
     {
        
         private short GenerateCode()
@@ -23,7 +29,7 @@ namespace CRM.Service
             throw new NotImplementedException();
         }
 
-        public async Task<ResponseModel<bool>> ConfirmEmailAsync(ApplicationUserRegisterInputModel model)
+        public async Task<ResponseModel<bool>> ConfirmEmailAsync(ApplicationUserConfirmEmailInputModel model)
         {
             ArgumentNullException.ThrowIfNull(model.Email);
             var user = userManager.FindByEmailAsync(model.Email).Result;
@@ -59,9 +65,18 @@ namespace CRM.Service
 
             }
 
+
+            await SendEmailConfirmationCodeAsync(model);
+            return new ResponseModel<bool>
+            {
+                IsSuccess = true,
+                Message = "Verification code sent to email",
+                Data = true
+            };
+
         }
 
-        public Task<ResponseModel<bool>> ForgotPasswordAsync(ApplicationUserRegisterInputModel model)
+        public Task<ResponseModel<bool>> ForgotPasswordAsync(ApplicationUserForgotPasswordInputModel model)
         {
             throw new NotImplementedException();
         }
@@ -78,7 +93,7 @@ namespace CRM.Service
                 return new ResponseModel<bool>
                 {
                     IsSuccess = true,
-                    Message = "Login successful",
+                    Message = localize.localize("Register.Login_successful"),
                     Data = true
                 };
             }
@@ -144,7 +159,7 @@ namespace CRM.Service
             };
         }
 
-        public Task<bool> ResetPasswordAsync(ApplicationUserRegisterInputModel model)
+        public  Task<ResponseModel<bool>> ResetPasswordAsync(ApplicationUserForgotPasswordInputModel model)
         {
             throw new NotImplementedException();
         }
@@ -153,5 +168,20 @@ namespace CRM.Service
         {
             throw new NotImplementedException();
         }
+
+
+        private async Task SendEmailConfirmationCodeAsync(ApplicationUserVerificationBaseInputModel model)
+        {
+            MailMessage mail = new();
+            mail.To.Add(model.Email);
+            mail.Subject = "CRM Application";
+
+            var emailContent = model.EmailTemplate.Replace("{FullName}", model.FullName).Replace("{Code}", model.Code);
+            var alternateView = AlternateView.CreateAlternateViewFromString(emailContent, null, MediaTypeNames.Text.Html);
+            mail.AlternateViews.Add(alternateView);
+            await applicationEmailSender.SendEmailAsync(mail);
+        }
+
+
     }
 }
