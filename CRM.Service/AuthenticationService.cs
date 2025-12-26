@@ -1,10 +1,13 @@
-﻿using CRM.API.Service;
+﻿using Azure.Core;
+using CRM.API.Service;
 using CRM.Model.ApplicaitionModels;
 using CRM.Model.IdentityModels;
 using CRM.Model.Inputmodel;
+using CRM.Service.Helper;
 using CRM.Service.IService;
 using CRM.Utility;
 using CRM.Utility.IUtitlity;
+
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -172,13 +175,24 @@ namespace CRM.Service
 
         private async Task SendEmailConfirmationCodeAsync(ApplicationUserVerificationBaseInputModel model)
         {
+            var emailContent = TemplateHelper.LoadTemplate("confirm-email.html", new Dictionary<string, string>
+            {
+                { "FullName", model.FullName },
+                { "Code", model.Code }
+            });
+
             MailMessage mail = new();
             mail.To.Add(model.Email);
-            mail.Subject = "CRM Application";
+            mail.Subject = "CRM | Email Confirmation";
 
-            var emailContent = model.EmailTemplate.Replace("{FullName}", model.FullName).Replace("{Code}", model.Code);
-            var alternateView = AlternateView.CreateAlternateViewFromString(emailContent, null, MediaTypeNames.Text.Html);
+            var alternateView = AlternateView.CreateAlternateViewFromString(
+                emailContent,
+                null,
+                MediaTypeNames.Text.Html
+            );
+
             mail.AlternateViews.Add(alternateView);
+
             await applicationEmailSender.SendEmailAsync(mail);
         }
 
