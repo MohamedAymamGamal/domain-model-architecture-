@@ -42,7 +42,7 @@ namespace CRM.Api.Areas.Identity
         public async Task<IActionResult> ResetPassword([FromBody] ApplicationUserForgotPasswordInputModel model)
         {
             var response = await authenticationService.ResetPasswordAsync(model);
-            return response ? Ok(response) : StatusCode(500);
+            return response.IsSuccess ? Ok(response) : StatusCode(500);
         }
 
         [HttpPost("change-password")]
@@ -51,6 +51,13 @@ namespace CRM.Api.Areas.Identity
         {
             var response = await authenticationService.ChangePasswordAsync(model);
             return response ? Ok(response) : StatusCode(500);
+        }
+        [HttpPost("confirm-email")]
+        [DisplayName("Change Password")]
+        public async Task<IActionResult> ConfirmEmailVerifyCode([FromBody] ApplicationUserConfirmEmailInputModel model)
+        {
+            var response = await authenticationService.ConfirmEmailAsync(model);
+            return response.IsSuccess ? Ok(response) : StatusCode(500);
         }
 
         [HttpPost("refresh-token")]

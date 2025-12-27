@@ -55,6 +55,7 @@ namespace CRM.Service
                 };
             }
             user.VerificationCode = GenerateCode();
+
             var result = userManager.UpdateAsync(user).Result;
             
             if (!result.Succeeded)
@@ -67,14 +68,14 @@ namespace CRM.Service
                 };
 
             }
-
-
+            model.Code = user.VerificationCode.ToString();
+            model.FullName = $"{user.FirstName} {user.LastName}";
             await SendEmailConfirmationCodeAsync(model);
             return new ResponseModel<bool>
             {
                 IsSuccess = true,
                 Message = "Verification code sent to email",
-                Data = true
+               
             };
 
         }
@@ -167,9 +168,38 @@ namespace CRM.Service
             throw new NotImplementedException();
         }
 
-        public Task<ResponseModel<bool>> ConfirmEmailVerifyCodeAsync(ApplicationUserConfirmEmailInputModel model)
+        public async Task<ResponseModel<bool>> ConfirmEmailVerifyCodeAsync(ApplicationUserConfirmEmailInputModel model)
         {
-            throw new NotImplementedException();
+            var user = await userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return new ResponseModel<bool>
+                {
+                    IsSuccess = false,
+                    Message = "User not found"
+                };
+            }
+            model.FullName = $"{user.FirstName} {user.LastName}";
+            bool isCodeValid = user.VerificationCode != null && user.VerificationCode.ToString() == model.Code;
+            if (isCodeValid) { 
+                user.EmailConfirmed = true;
+                user.Activity = true;
+                var result = await userManager.UpdateAsync(user);
+                return new ResponseModel<bool>
+                {
+                    IsSuccess = result.Succeeded,
+                    Message = result.Succeeded ? "Email confirmed successfully" : "Failed to confirm email",
+                    Data = result.Succeeded
+                };
+            }else
+            {
+                return new ResponseModel<bool>
+                {
+                    IsSuccess = false,
+                    Message = "Invalid verification code",
+                    
+                };
+            }
         }
 
 
@@ -190,10 +220,10 @@ namespace CRM.Service
                 null,
                 MediaTypeNames.Text.Html
             );
-
+            
             mail.AlternateViews.Add(alternateView);
 
-            await applicationEmailSender.SendEmailAsync(mail);
+            await emailService.SendEmailAsync(mail);
         }
 
 
