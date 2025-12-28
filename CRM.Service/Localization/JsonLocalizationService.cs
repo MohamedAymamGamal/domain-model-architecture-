@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace CRM.API.Service
+namespace CRM.Service.Localization
 {
     public class JsonLocalizationService
     {

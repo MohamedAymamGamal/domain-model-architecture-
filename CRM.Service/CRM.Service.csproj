@@ -15,4 +15,9 @@
     <ProjectReference Include="..\CRM.DataAccess\CRM.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Helper\" />
+    <Folder Include="IService\" />
+  </ItemGroup>
+
 </Project>

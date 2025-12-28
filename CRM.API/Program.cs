@@ -4,13 +4,17 @@ using CRM.Model.IdentityModels;
 using CRM.Utility;
 using CRM.Utility.IUtitlity;
 //using Microsoft.AspNetCore.Authentication;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
 using System;
 using System.Diagnostics;
-using CRM.Service.IService;
-using CRM.Service;
+using System.Text;
+using TokenHandler = CRM.Utility.TokenHandler;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi;
+using CRM.Service.Identity;
+
 
 namespace CRM.API
 {
@@ -37,10 +41,10 @@ namespace CRM.API
                   .AddEntityFrameworkStores<ApplicationDbContext>()
                   .AddDefaultTokenProviders();
 
-            builder.Services.AddOpenApi();
             //service for swagger
 
 
+            builder.Services.AddOpenApi();
 
 
             //service for swagger
@@ -48,18 +52,42 @@ namespace CRM.API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CRM API", Version = "v1" });
             });
-
-            builder.Services.AddSingleton<JsonLocalizationService>();
             //service for swagger
 
 
             // service for services
-            builder.Services.AddScoped<CRM.Service.IService.IAuthenticationService, AuthenticationService>();
-            builder.Services.AddSingleton<JsonLocalizationService>();
+            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
+            builder.Services.AddSingleton<IApplicationEmailSender, ApplicationEmailSender>();
+            builder.Services.Configure<TokenConfiguration>(builder.Configuration.GetSection("TokenConfiguration"));
+            builder.Services.AddSingleton<ITokenHandler, TokenHandler>();
+
+
 
             //service for services
 
+            //jwt
+            builder.Services.AddAuthentication(optiones =>
+            {
+                optiones.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                optiones.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                optiones.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+              .AddJwtBearer(o =>
+                  o.TokenValidationParameters = new TokenValidationParameters
+                  {
+                      ValidAudience = builder.Configuration["TokenConfiguration:Audience"],
+                      ValidIssuer = builder.Configuration["TokenConfiguration:Issuer"],
+                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenConfiguration:SecretKey"]!)),
+                      ValidateIssuer = true,
+                      ValidateAudience = true,
+                      ValidateIssuerSigningKey = true,
+                      ValidateLifetime = true,
+                      ClockSkew = TimeSpan.Zero,
+                  }
+              );
 
+            //jwt
 
             // server for utitly 
             builder.Services.AddSingleton<IApplicationEmailSender, ApplicationEmailSender>();
@@ -77,6 +105,7 @@ namespace CRM.API
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+
             }
             if (app.Environment.IsDevelopment())
             {

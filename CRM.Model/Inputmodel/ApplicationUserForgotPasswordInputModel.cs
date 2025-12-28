@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CRM.Model.Inputmodel
 {
-    public class ApplicationUserForgotPasswordInputModel
+    public class ApplicationUserForgotPasswordInputModel : ApplicationUserVerificationBaseInputModel
 
     {
 

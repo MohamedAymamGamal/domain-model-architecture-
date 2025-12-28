@@ -1,14 +1,15 @@
 ﻿using CRM.Model.ApplicaitionModels;
 using CRM.Model.Inputmodel;
+using CRM.Model.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CRM.Service.IService
+namespace CRM.Service.Identity
 {
     public interface IAuthenticationService
     {
-        Task<ResponseModel<bool>> LoginAsync(ApplicationUserLoginInputModel model);
+        Task<ResponseModel<ApplicationUserProfileViewModel>> LoginAsync(ApplicationUserLoginInputModel model);
         Task<ResponseModel<bool>> RegisterAsync(ApplicationUserRegisterInputModel model);
         Task<ResponseModel<bool>> ConfirmEmailAsync(ApplicationUserConfirmEmailInputModel model);
         Task<ResponseModel<bool>> ConfirmEmailVerifyCodeAsync(ApplicationUserConfirmEmailInputModel model);

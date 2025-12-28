@@ -2,7 +2,7 @@
 using CRM.Model.ApplicaitionModels;
 using System.ComponentModel;
 using CRM.Model.Inputmodel;
-using CRM.Service.IService;
+using CRM.Service.Identity;
 
 namespace CRM.Api.Areas.Identity
 {
@@ -17,7 +17,7 @@ namespace CRM.Api.Areas.Identity
         public async Task<IActionResult> Login([FromBody] ApplicationUserLoginInputModel model)
         {
             var response = await authenticationService.LoginAsync(model);
-            return response.IsSuccess ? Ok() : BadRequest(response);
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
 
         }
 
