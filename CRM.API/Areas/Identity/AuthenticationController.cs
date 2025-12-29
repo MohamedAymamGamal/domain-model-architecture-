@@ -45,13 +45,6 @@ namespace CRM.Api.Areas.Identity
             return response.IsSuccess ? Ok(response) : StatusCode(500);
         }
 
-        [HttpPost("change-password")]
-        [DisplayName("Change Password")]
-        public async Task<IActionResult> ChangePassword([FromBody] ApplicationUserRegisterInputModel model)
-        {
-            var response = await authenticationService.ChangePasswordAsync(model);
-            return response ? Ok(response) : StatusCode(500);
-        }
         [HttpPost("confirm-email")]
         [DisplayName("Change Password")]
         public async Task<IActionResult> ConfirmEmailVerifyCode([FromBody] ApplicationUserConfirmEmailInputModel model)

@@ -10,10 +10,7 @@ namespace CRM.Model.ViewModels
         public string? FullName => $"{FirstName} {LastName}";
         public string? Token { get; set; }
 
-        public ApplicationUserProfileViewModel()
-        {
-        }
-
+        
         public ApplicationUserProfileViewModel(ApplicationUser model)
         {
             Id = model.Id;

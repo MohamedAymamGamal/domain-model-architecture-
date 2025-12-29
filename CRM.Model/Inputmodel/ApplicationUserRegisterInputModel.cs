@@ -6,17 +6,8 @@ using System.Text;
 
 namespace CRM.Model.Inputmodel
 {
-    public class ApplicationUserRegisterInputModel
+    public class ApplicationUserRegisterInputModel : ApplicationUserBaseInputModel
     {
-        [Required]
-        public required string FirstName { get; set; }
-
-        [Required]
-        public required string LastName { get; set; }
-        public Gender? Gender { get; set; }
-        public DateTime? DateOfBirth { get; set; }
-        public string? ImageName { get; set; }
-
         [Required]
         [EmailAddress]
         public required string Email { get; set; }
@@ -24,7 +15,7 @@ namespace CRM.Model.Inputmodel
         [Required]
         public required string Password { get; set; }
 
-    
+
     }
 
 }
