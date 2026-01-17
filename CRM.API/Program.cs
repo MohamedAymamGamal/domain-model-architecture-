@@ -1,18 +1,13 @@
-using CRM.API.Service;
 using CRM.DataAccess;
 using CRM.Model.IdentityModels;
 using CRM.Utility;
 using CRM.Utility.IUtitlity;
-//using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Diagnostics;
 using System.Text;
-using TokenHandler = CRM.Utility.TokenHandler;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.OpenApi;
 using CRM.Service.Identity;
 
 
@@ -44,14 +39,10 @@ namespace CRM.API
             //service for swagger
 
 
-            builder.Services.AddOpenApi();
 
 
             //service for swagger
-            builder.Services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CRM API", Version = "v1" });
-            });
+     
             //service for swagger
 
 
@@ -60,7 +51,10 @@ namespace CRM.API
             builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
             builder.Services.AddSingleton<IApplicationEmailSender, ApplicationEmailSender>();
             builder.Services.Configure<TokenConfiguration>(builder.Configuration.GetSection("TokenConfiguration"));
-            builder.Services.AddSingleton<ITokenHandler, TokenHandler>();
+            builder.Services.AddSingleton<ITokenHandler, Utility.TokenHandler>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
+            builder.Services.AddSingleton<IApplicationEmailSender, ApplicationEmailSender>();
 
 
 
@@ -90,7 +84,6 @@ namespace CRM.API
             //jwt
 
             // server for utitly 
-            builder.Services.AddSingleton<IApplicationEmailSender, ApplicationEmailSender>();
             //server for utility
 
 
@@ -102,25 +95,8 @@ namespace CRM.API
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-
-            }
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CRM API V1"));
-
-                // Open the default web browser with Swagger UI when the application starts
-                var url = "https://localhost:7240/swagger";
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = url,
-                    UseShellExecute = true
-                });
-            }
-
+          
+            
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

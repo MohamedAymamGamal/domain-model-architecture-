@@ -16,8 +16,24 @@ namespace CRM.API.Areas.Identity
     
     public class UserController(IUserService userService) : ControllerBase
     {
+
+        public async Task<IActionResult> GetUserProfile()
+        {
+            var userContext = new ApplicationUserContext()
+            {
+                UserId = User.FindFirst("UserId")?.Value,
+                Email = User.FindFirst("Email")?.Value,
+            };
+
+            var response = await userService.GetUserProfileAsync( userContext);
+            return response.IsSuccess ? Ok() : BadRequest(response);
+        }
+
+
+
         [HttpPost("update-user-profile")]
         [DisplayName("Update User Profile")]
+       
         public async Task<IActionResult> UpdateUserProfile([FromBody] ApplicationUserProfileViewModel model)
         {
             var userContext = new ApplicationUserContext()
@@ -41,7 +57,7 @@ namespace CRM.API.Areas.Identity
             };
 
             var response = await userService.ChangePasswordAsync(model, userContext);
-            return response.IsSuccess ? Ok() : BadRequest(response);
+            return response.IsSuccess ? Ok(response) : BadRequest(response);
         }
     }
 }

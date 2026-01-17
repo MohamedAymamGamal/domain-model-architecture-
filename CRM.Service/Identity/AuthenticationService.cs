@@ -162,7 +162,7 @@ namespace CRM.Service.Identity
 
         
 
-        public async Task<ResponseModel<ApplicationUserProfileViewModel>> LoginAsync(ApplicationUserLoginInputModel model)
+        public async Task<ResponseModel<AuthenticationTokens>> LoginAsync(ApplicationUserLoginInputModel model)
         {
             ArgumentNullException.ThrowIfNull(model.Email);
             ArgumentNullException.ThrowIfNull(model.Password);
@@ -178,10 +178,16 @@ namespace CRM.Service.Identity
                     new(TokenParameters.Email, user?.Email!)
                 };
                 var token = tokenHandler.GenerateJwtToken(claims);
-                return new ResponseModel<ApplicationUserProfileViewModel>
+                var refreshToken = tokenHandler.GenerateRefreshToken();
+                user!.RefreshTokenAttemptCount = 0;
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(tokenHandler.GetRefreshTokenExpiryDays());
+                await userManager.UpdateAsync(user);
+
+                return new ResponseModel<AuthenticationTokens>
                 {
                     IsSuccess = true,
-                    Message = localize.localize("Register.Login_successful")
+                    Message = localize.localize("Register.Login_successful"),
                 };
             }
 
@@ -190,11 +196,10 @@ namespace CRM.Service.Identity
                                   result.RequiresTwoFactor ? "Two-factor authentication is required." :
                                   "Invalid login attempt.";
 
-            return new ResponseModel<bool>
+            return new ResponseModel<AuthenticationTokens>
             {
                 IsSuccess = false,
                 Message = errorMessage,
-                Data = false
             };
 
         }

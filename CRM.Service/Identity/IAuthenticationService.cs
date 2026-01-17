@@ -2,6 +2,7 @@
 using CRM.Model.Inputmodel;
 using CRM.Model.ViewModels;
 using System;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,7 +10,8 @@ namespace CRM.Service.Identity
 {
     public interface IAuthenticationService
     {
-        Task<ResponseModel<ApplicationUserProfileViewModel>> LoginAsync(ApplicationUserLoginInputModel model);
+        Task<ResponseModel<AuthenticationTokens>> LoginAsync(ApplicationUserLoginInputModel model);
+
         Task<ResponseModel<bool>> RegisterAsync(ApplicationUserRegisterInputModel model);
         Task<ResponseModel<bool>> ConfirmEmailAsync(ApplicationUserConfirmEmailInputModel model);
         Task<ResponseModel<bool>> ConfirmEmailVerifyCodeAsync(ApplicationUserConfirmEmailInputModel model);

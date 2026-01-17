@@ -8,6 +8,21 @@ namespace CRM.Service.Identity
 {
     public class UserService (UserManager<ApplicationUser> userManager) : IUserService
     {
+       
+        public async Task<ResponseModel<ApplicationUserProfileViewModel>> GetUserProfileAsync(ApplicationUserContext userContext)
+        {
+            ArgumentNullException.ThrowIfNull(userContext.UserId);
+            var user = await userManager.FindByIdAsync(userContext.UserId) ?? throw new Exception("unable to get user");
+            return new ResponseModel<ApplicationUserProfileViewModel>
+            {
+                IsSuccess = true,
+                Message = "user profile retrived successfuly",
+                Data = new ApplicationUserProfileViewModel(user)
+            };
+        }
+        
+        
+        
         public async Task<ResponseModel<bool>> ChangePasswordAsync(ApplicationUserChangePasswordInputModel model, ApplicationUserContext userContext)
         {
           ArgumentNullException.ThrowIfNull(userContext.UserId);
